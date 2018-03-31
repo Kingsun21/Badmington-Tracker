@@ -111,6 +111,10 @@ public class MatchDetail extends AppCompatActivity
 
         date = (EditText) findViewById(R.id.date);
         date.addTextChangedListener(tw);
+        nomJoueur1 = findViewById(R.id.nomJoueur1);
+        nomJoueur2 = findViewById(R.id.nomJoueur2);
+        scoreJoueur1 = findViewById(R.id.scoreJoueur1);
+        scoreJoueur2 = findViewById(R.id.scoreJoueur2);
     }
 
     @Override

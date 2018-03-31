@@ -37,7 +37,8 @@
                 <EditText
                     android:layout_width="150dp"
                     android:layout_height="match_parent"
-                    android:id="@+id/nomJoueur1"/>
+                    android:id="@+id/nomJoueur1"
+                    android:inputType="text"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -51,7 +52,8 @@
                 <EditText
                     android:layout_width="150dp"
                     android:layout_height="match_parent"
-                    android:id="@+id/scoreJoueur1"/>
+                    android:id="@+id/scoreJoueur1"
+                    android:inputType="number"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -84,7 +86,8 @@
                 <EditText
                     android:layout_width="150dp"
                     android:layout_height="match_parent"
-                    android:id="@+id/nomJoueur2"/>
+                    android:id="@+id/nomJoueur2"
+                    android:inputType="text"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
@@ -98,7 +101,8 @@
                 <EditText
                     android:layout_width="150dp"
                     android:layout_height="match_parent"
-                    android:id="@+id/scoreJoueur2"/>
+                    android:id="@+id/scoreJoueur2"
+                    android:inputType="number"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -118,7 +122,8 @@
             android:layout_height="match_parent"
             android:layout_weight="50"
             android:layout_marginEnd="100dp"
-            android:id="@+id/date"/>
+            android:id="@+id/date"
+            android:inputType="number"/>
     </LinearLayout>
 
     <FrameLayout
