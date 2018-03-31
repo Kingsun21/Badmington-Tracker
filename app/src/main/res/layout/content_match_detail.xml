@@ -132,5 +132,13 @@
         android:id="@+id/fragmentLocation">
 
     </FrameLayout>
+    
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="100dp"
+        android:layout_marginStart="100dp"
+        android:text="Entrer le match"
+        android:onClick="sendToDb"/>
 
 </LinearLayout>

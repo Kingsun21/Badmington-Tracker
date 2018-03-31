@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -40,6 +41,8 @@ public class MatchDetail extends AppCompatActivity
                 this, drawer, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
+
+        initDatabase();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -109,12 +112,26 @@ public class MatchDetail extends AppCompatActivity
 
         };
 
-        date = (EditText) findViewById(R.id.date);
+        date = findViewById(R.id.date);
         date.addTextChangedListener(tw);
         nomJoueur1 = findViewById(R.id.nomJoueur1);
         nomJoueur2 = findViewById(R.id.nomJoueur2);
         scoreJoueur1 = findViewById(R.id.scoreJoueur1);
         scoreJoueur2 = findViewById(R.id.scoreJoueur2);
+    }
+
+    public void sendToDb(View view) {
+        Match match = new Match(nomJoueur1.getText().toString(),nomJoueur2.getText().toString(),Integer.parseInt(scoreJoueur1.getText().toString()), Integer.parseInt(scoreJoueur2.getText().toString()),date.getText().toString());
+        Database db = Database.getInstance(this);
+        db.updateMatch(match);
+        Log.d("database", "Match entré");
+    }
+
+    private void initDatabase() {
+        Database database = Database.getInstance(this);
+        database.resetDB();
+        Match match = new Match("Joueur 1", "Joueur 2", 0, 0, "01/01/1900");
+        database.insertMatch(match);
     }
 
     @Override

@@ -4,6 +4,7 @@ package fr.android.badmingtontracker;
  * Created by prit on 30/03/2018.
  */
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -21,12 +22,12 @@ public class Database extends SQLiteOpenHelper {
     public static final String SCORE1 = "score1";
     public static final String SCORE2 = "score2";
     private static final String WINNER = "winner";
-    private static final String DATE = "1/1/1900";
+    private static final String DATE = "date";
     private static final String LOCATION = "street";
     private static final String SQLSELECTALL = "SELECT  * FROM "+TABLENAME;
 
     private static final String CREATE_DATABASE = "CREATE TABLE "+ TABLENAME
-            + "(" + _ID + " INTEGER PRIMARY KEY, "
+            + "(" + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
             + PLAYER1 + " TEXT, "
             + PLAYER2 + " TEXT, "
             + SCORE1 + " INTEGER, "
@@ -51,33 +52,33 @@ public class Database extends SQLiteOpenHelper {
 
         db.execSQL(CREATE_DATABASE);
     }
-    /*
-        public void insertLocalisation(Coordonnees coordonnees) {
+
+        public void insertMatch(Match match) {
             SQLiteDatabase database = getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put(_ID, coordonnees.getId());
-            values.put(LATITUDE, coordonnees.getLatitude());
-            values.put(LONGITUDE, coordonnees.getLongitude());
+            values.put(_ID, match.getId());
+            values.put(PLAYER1, match.getNomJoueur1());
+            values.put(PLAYER2, match.getNomJoueur2());
+            values.put(SCORE1, match.getScoreJoueur1());
+            values.put(SCORE2, match.getScoreJoueur2());
+            values.put(DATE, match.getDate());
             database.insert(TABLENAME, null,values);
             database.close();
         }
 
-        public void updateLocalisation(Coordonnees coordonnees) {
+        public void updateMatch(Match match) {
             SQLiteDatabase database = getWritableDatabase();
             ContentValues values = new ContentValues();
-            values.put(_ID, coordonnees.getId());
-            values.put(LATITUDE, coordonnees.getLatitude());
-            values.put(LONGITUDE, coordonnees.getLongitude());
-            database.update(TABLENAME, values,"_id=1", null);
+            values.put(_ID, match.getId());
+            values.put(PLAYER1, match.getNomJoueur1());
+            values.put(PLAYER2, match.getNomJoueur2());
+            values.put(SCORE1, match.getScoreJoueur1());
+            values.put(SCORE2, match.getScoreJoueur2());
+            values.put(DATE, match.getDate());
+            database.update(TABLENAME, values,_ID+"=?", new String[]{String.valueOf(match.getId())});
             database.close();
         }
 
-        public int isRow(){
-            SQLiteDatabase database = getReadableDatabase();
-            int nbRows = (int) DatabaseUtils.queryNumEntries(database,TABLENAME);
-            return nbRows;
-        }
-    */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS "+TABLENAME);
