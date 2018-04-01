@@ -6,6 +6,8 @@ package fr.android.badmingtontracker;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -19,9 +21,9 @@ public class Database extends SQLiteOpenHelper {
     public static final String _ID = "_id";
     private static final String PLAYER1 = "Player1";
     private static final String PLAYER2 = "Player2";
-    public static final String SCORE1 = "score1";
-    public static final String SCORE2 = "score2";
-    private static final String WINNER = "winner";
+    private static final String SCORE1 = "score1";
+    private static final String SCORE2 = "score2";
+    public static final String WINNER = "winner";
     private static final String DATE = "date";
     private static final String LOCATION = "street";
     private static final String SQLSELECTALL = "SELECT  * FROM "+TABLENAME;
@@ -53,31 +55,39 @@ public class Database extends SQLiteOpenHelper {
         db.execSQL(CREATE_DATABASE);
     }
 
-        public void insertMatch(Match match) {
-            SQLiteDatabase database = getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(_ID, match.getId());
-            values.put(PLAYER1, match.getNomJoueur1());
-            values.put(PLAYER2, match.getNomJoueur2());
-            values.put(SCORE1, match.getScoreJoueur1());
-            values.put(SCORE2, match.getScoreJoueur2());
-            values.put(DATE, match.getDate());
-            database.insert(TABLENAME, null,values);
-            database.close();
-        }
+    public void initialisationMatch(Match match) {
+        SQLiteDatabase database = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(PLAYER1, match.getNomJoueur1());
+        values.put(PLAYER2, match.getNomJoueur2());
+        values.put(SCORE1, match.getScoreJoueur1());
+        values.put(SCORE2, match.getScoreJoueur2());
+        values.put(DATE, match.getDate());
+        database.insert(TABLENAME, null,values);
+        database.close();
+    }
 
-        public void updateMatch(Match match) {
-            SQLiteDatabase database = getWritableDatabase();
-            ContentValues values = new ContentValues();
-            values.put(_ID, match.getId());
-            values.put(PLAYER1, match.getNomJoueur1());
-            values.put(PLAYER2, match.getNomJoueur2());
-            values.put(SCORE1, match.getScoreJoueur1());
-            values.put(SCORE2, match.getScoreJoueur2());
-            values.put(DATE, match.getDate());
-            database.update(TABLENAME, values,_ID+"=?", new String[]{String.valueOf(match.getId())});
-            database.close();
+    public int nbRows(){
+        SQLiteDatabase database = getReadableDatabase();
+        int numberRows = (int) DatabaseUtils.queryNumEntries(database,TABLENAME);
+        return numberRows;
+    }
+
+    public void insertMatch(Match match) {
+        SQLiteDatabase database = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(PLAYER1, match.getNomJoueur1());
+        values.put(PLAYER2, match.getNomJoueur2());
+        values.put(SCORE1, match.getScoreJoueur1());
+        values.put(SCORE2, match.getScoreJoueur2());
+        values.put(DATE, match.getDate());
+        values.put(WINNER, match.getWinner());
+        long idInsert = database.insert(TABLENAME, null, values);
+        if(nbRows()>5){
+            deleteMatch(idInsert - 5);
         }
+        database.close();
+    }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -85,26 +95,43 @@ public class Database extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    /*
-        public Coordonnees getLocalisation(){
-            int id = 1;
-            SQLiteDatabase database = getReadableDatabase();
-            Cursor cursor = database.query(TABLENAME, new String[]{_ID, LATITUDE, LONGITUDE},_ID + "=?",new String[]{String.valueOf(id)}, null,null,null);
-            Coordonnees coordonnees = new Coordonnees();
-            boolean toFirst = cursor.moveToFirst();
-            if (cursor != null && toFirst) {
-                coordonnees.setId(cursor.getInt(cursor.getColumnIndex(_ID)));
-                coordonnees.setLatitude(cursor.getInt(cursor.getColumnIndex(LATITUDE)));
-                coordonnees.setLongitude(cursor.getInt(cursor.getColumnIndex(LONGITUDE)));
-                cursor.close();
-            }
-            return coordonnees;
+
+    public Match getMatch(long id){
+        SQLiteDatabase database = getReadableDatabase();
+        Cursor cursor = database.query(TABLENAME, new String[]{_ID, PLAYER1, PLAYER2, SCORE1, SCORE2, DATE, WINNER},_ID + "=?",new String[]{String.valueOf(id)}, null,null,null);
+        Match match = new Match();
+        boolean toFirst = cursor.moveToFirst();
+        if (cursor != null && toFirst) {
+            match.setId(cursor.getInt(cursor.getColumnIndex(_ID)));
+            match.setNomJoueur1(cursor.getString(cursor.getColumnIndex(PLAYER1)));
+            match.setNomJoueur2(cursor.getString(cursor.getColumnIndex(PLAYER2)));
+            match.setScoreJoueur1(cursor.getInt(cursor.getColumnIndex(SCORE1)));
+            match.setScoreJoueur2(cursor.getInt(cursor.getColumnIndex(SCORE2)));
+            match.setDate(cursor.getString(cursor.getColumnIndex(DATE)));
+            match.setWinner(cursor.getString(cursor.getColumnIndex(WINNER)));
+            cursor.close();
         }
-    */
+        return match;
+    }
+
+    public Cursor getContacts(){
+        SQLiteDatabase database = getReadableDatabase();
+        return database.rawQuery(SQLSELECTALL, null);
+    }
+
+
     public void resetDB(){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS "+TABLENAME);
         onCreate(db);
 
     }
+
+    public void deleteMatch(long id) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.delete(TABLENAME,_ID + " = ?",
+                new String[] {String.valueOf(id)});
+        db.close();
+    }
+
 }

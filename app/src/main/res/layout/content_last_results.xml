@@ -8,4 +8,9 @@
     tools:context="fr.android.badmingtontracker.LastResults"
     tools:showIn="@layout/app_bar_last_results">
 
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/listview1"/>
+
 </android.support.constraint.ConstraintLayout>

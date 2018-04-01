@@ -42,7 +42,6 @@ public class MatchDetail extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        initDatabase();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -121,18 +120,14 @@ public class MatchDetail extends AppCompatActivity
     }
 
     public void sendToDb(View view) {
-        Match match = new Match(nomJoueur1.getText().toString(),nomJoueur2.getText().toString(),Integer.parseInt(scoreJoueur1.getText().toString()), Integer.parseInt(scoreJoueur2.getText().toString()),date.getText().toString());
+        String winner = ((Integer.parseInt(scoreJoueur1.getText().toString())>Integer.parseInt(scoreJoueur2.getText().toString())) ? nomJoueur1.getText().toString() : nomJoueur2.getText().toString());
+        Match match = new Match(nomJoueur1.getText().toString(),nomJoueur2.getText().toString(),Integer.parseInt(scoreJoueur1.getText().toString()), Integer.parseInt(scoreJoueur2.getText().toString()),date.getText().toString(), winner);
         Database db = Database.getInstance(this);
-        db.updateMatch(match);
-        Log.d("database", "Match entré");
+        db.insertMatch(match);
+        onBackPressed();
     }
 
-    private void initDatabase() {
-        Database database = Database.getInstance(this);
-        database.resetDB();
-        Match match = new Match("Joueur 1", "Joueur 2", 0, 0, "01/01/1900");
-        database.insertMatch(match);
-    }
+
 
     @Override
     public void onBackPressed() {

@@ -30,7 +30,8 @@
         <activity
             android:name=".FullResults"
             android:label="@string/title_activity_full_results"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".LastResultsDetails"></activity>
     </application>
 
 </manifest>
