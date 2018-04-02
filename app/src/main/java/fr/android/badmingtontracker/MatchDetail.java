@@ -196,9 +196,7 @@ public class MatchDetail extends AppCompatActivity
         OkHttpClient client = new OkHttpClient();
 
         Gson gson = new Gson();
-        String urlInsert = "http://192.168.0.17:8080/badmington";
-        String urlGetAllDB = "http://192.168.0.17:8080/badmington/all";
-        String urlRemoveAllDB = "http://192.168.0.17:8080/badmington/all";
+        String urlInsert = "http://46.101.44.44:8080/badmington";
         MediaType jsonApplication = MediaType.parse("application/json; charset=utf-8");
 
         @Override
@@ -214,16 +212,6 @@ public class MatchDetail extends AppCompatActivity
                     RequestBody body = RequestBody.create(jsonApplication,jsonSend);
                     builder.url(urlInsert);
                     builder.post(body);
-                    request = builder.build();
-                    break;
-                case "getAllDB":
-                    builder.url(urlGetAllDB);
-                    builder.get();
-                    request = builder.build();
-                    break;
-                case "removeAllDB":
-                    builder.url(urlRemoveAllDB);
-                    builder.delete();
                     request = builder.build();
                     break;
                 default:
@@ -245,7 +233,9 @@ public class MatchDetail extends AppCompatActivity
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             String result = (String) o;
-            Toast.makeText(context,result,Toast.LENGTH_LONG);
+            if (result.endsWith("OK")) {
+                Toast.makeText(context, result, Toast.LENGTH_LONG);
+            }
         }
     }
 
