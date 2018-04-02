@@ -5,7 +5,7 @@ package fr.android.badmingtontracker;
  */
 
 public class Match {
-    private int id;
+    private long id;
     private String nomJoueur1;
     private String nomJoueur2;
     private int scoreJoueur1;
@@ -28,11 +28,11 @@ public class Match {
 
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

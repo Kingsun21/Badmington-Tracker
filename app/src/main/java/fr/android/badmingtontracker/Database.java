@@ -73,7 +73,7 @@ public class Database extends SQLiteOpenHelper {
         return numberRows;
     }
 
-    public void insertMatch(Match match) {
+    public long insertMatch(Match match) {
         SQLiteDatabase database = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(PLAYER1, match.getNomJoueur1());
@@ -87,6 +87,7 @@ public class Database extends SQLiteOpenHelper {
             deleteMatch(idInsert - 5);
         }
         database.close();
+        return idInsert;
     }
 
     @Override

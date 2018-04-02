@@ -1,11 +1,16 @@
 package fr.android.badmingtontracker;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,11 +22,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
 
 import java.util.Calendar;
 
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class MatchDetail extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+
+    public static String ACTION_INSERT = "insertDB";
+    public static String ACTION_GET_ALL = "getAllDB";
+    public static String ACTION_REMOVE_ALL = "removeAllDB";
 
     EditText nomJoueur1;
     EditText nomJoueur2;
@@ -30,12 +49,14 @@ public class MatchDetail extends AppCompatActivity
     EditText date;
     TextWatcher tw;
 
+    Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_match_detail);
-
+        context = this;
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -120,10 +141,14 @@ public class MatchDetail extends AppCompatActivity
     }
 
     public void sendToDb(View view) {
+        OkHttpHandler okHttpHandler = new OkHttpHandler();
         String winner = ((Integer.parseInt(scoreJoueur1.getText().toString())>Integer.parseInt(scoreJoueur2.getText().toString())) ? nomJoueur1.getText().toString() : nomJoueur2.getText().toString());
         Match match = new Match(nomJoueur1.getText().toString(),nomJoueur2.getText().toString(),Integer.parseInt(scoreJoueur1.getText().toString()), Integer.parseInt(scoreJoueur2.getText().toString()),date.getText().toString(), winner);
         Database db = Database.getInstance(this);
-        db.insertMatch(match);
+        long id = db.insertMatch(match);
+        match.setId(id);
+        MatchDTO matchDTO = MatchDTO.translate(match);
+        okHttpHandler.execute(ACTION_INSERT, matchDTO);
         onBackPressed();
     }
 
@@ -147,7 +172,8 @@ public class MatchDetail extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            Intent intent = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
+            startActivity(intent);
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
@@ -164,4 +190,63 @@ public class MatchDetail extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    public class OkHttpHandler extends AsyncTask {
+
+        OkHttpClient client = new OkHttpClient();
+
+        Gson gson = new Gson();
+        String urlInsert = "http://192.168.0.17:8080/badmington";
+        String urlGetAllDB = "http://192.168.0.17:8080/badmington/all";
+        String urlRemoveAllDB = "http://192.168.0.17:8080/badmington/all";
+        MediaType jsonApplication = MediaType.parse("application/json; charset=utf-8");
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            // param => action, match
+            Request.Builder builder = new Request.Builder();
+            String action = (String) objects[0];
+            Request request = null;
+            switch (action) {
+                case "insertDB" :
+                    MatchDTO matchDTO = (MatchDTO) objects[1];
+                    String jsonSend = gson.toJson(matchDTO);
+                    RequestBody body = RequestBody.create(jsonApplication,jsonSend);
+                    builder.url(urlInsert);
+                    builder.post(body);
+                    request = builder.build();
+                    break;
+                case "getAllDB":
+                    builder.url(urlGetAllDB);
+                    builder.get();
+                    request = builder.build();
+                    break;
+                case "removeAllDB":
+                    builder.url(urlRemoveAllDB);
+                    builder.delete();
+                    request = builder.build();
+                    break;
+                default:
+                    break;
+            }
+
+            if (request != null) {
+                try {
+                    Response response = client.newCall(request).execute();
+                    return response.body().string();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            String result = (String) o;
+            Toast.makeText(context,result,Toast.LENGTH_LONG);
+        }
+    }
+
 }
