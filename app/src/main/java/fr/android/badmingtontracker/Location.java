@@ -1,13 +1,33 @@
 package fr.android.badmingtontracker;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -19,63 +39,60 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class Location extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
+    private GoogleMap mMap;
     private OnFragmentInteractionListener mListener;
-
     public Location() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Location.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Location newInstance(String param1, String param2) {
+    public static Location newInstance() {
         Location fragment = new Location();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_location, container, false);
+        EditText adresse = view.findViewById(R.id.adresse);
+        String address = adresse.toString();
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_location, container, false);
+        Geocoder geoCoder = new Geocoder(getContext(), Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+            addresses = geoCoder.getFromLocationName(address, 5);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        if (addresses.size() > 0)
+        {
+            Double lat = (double) (addresses.get(0).getLatitude());
+            Double lon = (double) (addresses.get(0).getLongitude());
+
+            Log.d("lat-long", "" + lat + "......." + lon);
+            final LatLng user = new LatLng(lat, lon);
+            /*used marker for show the location */
+            mMap.addMarker(new MarkerOptions()
+                    .position(user)
+                    .title(address));
+            // Move the camera instantly to hamburg with a zoom of 15.
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(user, 15));
+
+            // Zoom in, animating the camera.
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+        }
+        return view;
     }
 
-    public void goToAddress(String address)
-    {
-        Uri gmmIntentUri = Uri.parse("geo:0,0?q=1600 Amphitheatre Parkway, Mountain+View, California");
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-        mapIntent.setPackage("com.google.android.apps.maps");
-        startActivity(mapIntent);
-    }
+
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -84,15 +101,11 @@ public class Location extends Fragment {
         }
     }
 
+
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
@@ -100,6 +113,8 @@ public class Location extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+
 
     /**
      * This interface must be implemented by activities that contain this

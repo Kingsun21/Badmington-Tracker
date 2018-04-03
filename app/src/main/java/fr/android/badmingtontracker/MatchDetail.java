@@ -2,11 +2,14 @@ package fr.android.badmingtontracker;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -24,9 +27,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -35,7 +47,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MatchDetail extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
 
     public static String ACTION_INSERT = "insertDB";
@@ -47,15 +59,24 @@ public class MatchDetail extends AppCompatActivity
     EditText scoreJoueur1;
     EditText scoreJoueur2;
     EditText date;
-    TextWatcher tw;
+    TextWatcher tw, tw2;
+    private Location location;
+    GoogleMap mMap;
 
     Context context;
+    private android.app.FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_match_detail);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+       // location = Location.newInstance();
+       // fragmentManager = this.getFragmentManager();
+        //fragmentManager.beginTransaction().replace(R.id.fragmentLocation, location).commit();
         context = this;
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -66,6 +87,52 @@ public class MatchDetail extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        EditText adresse = findViewById(R.id.adresse);
+        // Inflate the layout for this fragment
+        tw2 = new TextWatcher(){
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Geocoder geoCoder = new Geocoder(context, Locale.getDefault());
+                List<Address> addresses = null;
+                try {
+                    addresses = geoCoder.getFromLocationName(s.toString(), 5);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (addresses.size() > 0)
+                {
+                    Double lat = (double) (addresses.get(0).getLatitude());
+                    Double lon = (double) (addresses.get(0).getLongitude());
+
+                    Log.d("lat-long", "" + lat + "......." + lon);
+                    final LatLng user = new LatLng(lat, lon);
+            /*used marker for show the location */
+                    mMap.addMarker(new MarkerOptions()
+                            .position(user)
+                            .title(s.toString()));
+                    // Move the camera instantly to hamburg with a zoom of 15.
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(user, 15));
+
+                    // Zoom in, animating the camera.
+                    mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        };
+        adresse.addTextChangedListener(tw2);
+
 
 
         tw = new TextWatcher() {
@@ -189,6 +256,11 @@ public class MatchDetail extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
     }
 
     public class OkHttpHandler extends AsyncTask {
