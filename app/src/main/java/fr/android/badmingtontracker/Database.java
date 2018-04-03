@@ -63,6 +63,7 @@ public class Database extends SQLiteOpenHelper {
         values.put(SCORE1, match.getScoreJoueur1());
         values.put(SCORE2, match.getScoreJoueur2());
         values.put(DATE, match.getDate());
+        values.put(LOCATION, match.getLocation());
         database.insert(TABLENAME, null,values);
         database.close();
     }
@@ -82,6 +83,7 @@ public class Database extends SQLiteOpenHelper {
         values.put(SCORE2, match.getScoreJoueur2());
         values.put(DATE, match.getDate());
         values.put(WINNER, match.getWinner());
+        values.put(LOCATION, match.getLocation());
         long idInsert = database.insert(TABLENAME, null, values);
         if(nbRows()>5){
             deleteMatch(idInsert - 5);
@@ -99,7 +101,7 @@ public class Database extends SQLiteOpenHelper {
 
     public Match getMatch(long id){
         SQLiteDatabase database = getReadableDatabase();
-        Cursor cursor = database.query(TABLENAME, new String[]{_ID, PLAYER1, PLAYER2, SCORE1, SCORE2, DATE, WINNER},_ID + "=?",new String[]{String.valueOf(id)}, null,null,null);
+        Cursor cursor = database.query(TABLENAME, new String[]{_ID, PLAYER1, PLAYER2, SCORE1, SCORE2, DATE, WINNER, LOCATION},_ID + "=?",new String[]{String.valueOf(id)}, null,null,null);
         Match match = new Match();
         boolean toFirst = cursor.moveToFirst();
         if (cursor != null && toFirst) {
@@ -110,6 +112,7 @@ public class Database extends SQLiteOpenHelper {
             match.setScoreJoueur2(cursor.getInt(cursor.getColumnIndex(SCORE2)));
             match.setDate(cursor.getString(cursor.getColumnIndex(DATE)));
             match.setWinner(cursor.getString(cursor.getColumnIndex(WINNER)));
+            match.setLocation(cursor.getString(cursor.getColumnIndex(LOCATION)));
             cursor.close();
         }
         return match;

@@ -95,6 +95,6 @@ public class MatchDTO {
                 match.getScoreJoueur2(),
                 match.getDate(),
                 match.getWinner(),
-                "");
+                match.getLocation());
     }
 }

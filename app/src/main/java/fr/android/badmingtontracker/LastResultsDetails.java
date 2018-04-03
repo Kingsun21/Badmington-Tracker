@@ -15,6 +15,7 @@ public class LastResultsDetails extends AppCompatActivity {
     TextView tvScore1;
     TextView tvScore2;
     TextView tvDate;
+    TextView tvLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,12 +33,14 @@ public class LastResultsDetails extends AppCompatActivity {
             tvScore1 = findViewById(R.id.viewScoreJoueur1);
             tvScore2 = findViewById(R.id.viewScoreJoueur2);
             tvDate = findViewById(R.id.viewDate);
+            tvLocation = findViewById(R.id.viewLocation);
 
             tvNom1.setText(match.getNomJoueur1()+ "  ");
             tvNom2.setText("  "+match.getNomJoueur2());
             tvScore1.setText(Integer.toString(match.getScoreJoueur1()));
             tvScore2.setText(Integer.toString(match.getScoreJoueur2()));
             tvDate.setText(match.getDate());
+            tvLocation.setText(match.getLocation());
         }
     }
 }

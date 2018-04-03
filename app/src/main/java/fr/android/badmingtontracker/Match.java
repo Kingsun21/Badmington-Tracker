@@ -12,20 +12,29 @@ public class Match {
     private int scoreJoueur2;
     private String date;
     private String winner;
+    private String location;
 
 
-    public Match(String nomJoueur1, String nomJoueur2, int scoreJoueur1, int scoreJoueur2, String date, String winner){
+    public Match(String nomJoueur1, String nomJoueur2, int scoreJoueur1, int scoreJoueur2, String date, String winner, String location){
         this.date = date;
         this.nomJoueur1 = nomJoueur1;
         this.nomJoueur2 = nomJoueur2;
         this.scoreJoueur1 = scoreJoueur1;
         this.scoreJoueur2= scoreJoueur2;
         this.winner = winner;
-
+        this.location = location;
     }
 
     public Match(){
 
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public long getId() {

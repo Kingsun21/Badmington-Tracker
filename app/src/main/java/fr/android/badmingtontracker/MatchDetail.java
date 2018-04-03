@@ -59,6 +59,7 @@ public class MatchDetail extends AppCompatActivity
     EditText scoreJoueur1;
     EditText scoreJoueur2;
     EditText date;
+    EditText adresse;
     TextWatcher tw, tw2;
     private Location location;
     GoogleMap mMap;
@@ -88,7 +89,7 @@ public class MatchDetail extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        EditText adresse = findViewById(R.id.adresse);
+        adresse = findViewById(R.id.adresse);
         // Inflate the layout for this fragment
         tw2 = new TextWatcher(){
 
@@ -210,7 +211,7 @@ public class MatchDetail extends AppCompatActivity
     public void sendToDb(View view) {
         OkHttpHandler okHttpHandler = new OkHttpHandler();
         String winner = ((Integer.parseInt(scoreJoueur1.getText().toString())>Integer.parseInt(scoreJoueur2.getText().toString())) ? nomJoueur1.getText().toString() : nomJoueur2.getText().toString());
-        Match match = new Match(nomJoueur1.getText().toString(),nomJoueur2.getText().toString(),Integer.parseInt(scoreJoueur1.getText().toString()), Integer.parseInt(scoreJoueur2.getText().toString()),date.getText().toString(), winner);
+        Match match = new Match(nomJoueur1.getText().toString(),nomJoueur2.getText().toString(),Integer.parseInt(scoreJoueur1.getText().toString()), Integer.parseInt(scoreJoueur2.getText().toString()),date.getText().toString(), winner, adresse.getText().toString());
         Database db = Database.getInstance(this);
         long id = db.insertMatch(match);
         match.setId(id);
